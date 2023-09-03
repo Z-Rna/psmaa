@@ -67,7 +67,7 @@ def create_tri_data(filename_matrix,
                                        p[col].values[0],
                                        v[col].values[0]) for col in b.index.values]
 
-    profile_matrix = ProfileMatrix(profiles, criterions, raw_data_b)
+    profile_matrix = ProfileMatrix(profiles, criterions, [], raw_data_b)
 
     return impact_matrix, profile_matrix
 

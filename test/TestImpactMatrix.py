@@ -1,20 +1,20 @@
 import unittest
-import smaa
+import src
 import numpy as np
 
 
 class TestImpactMatrix(unittest.TestCase):
 
     def setUp(self):
-        alt1 = smaa.Alternative("alt1")
-        alt2 = smaa.Alternative("alt2")
-        alt3 = smaa.Alternative("alt3")
-        cri1 = smaa.Criterion("cri1")
-        cri2 = smaa.Criterion("cri2")
+        alt1 = src.Alternative("alt1")
+        alt2 = src.Alternative("alt2")
+        alt3 = src.Alternative("alt3")
+        cri1 = src.Criterion("cri1")
+        cri2 = src.Criterion("cri2")
         alternatives = np.array([alt1, alt2, alt3])
         criterions = np.array([cri1, cri2])
         data = np.array([[0.5, 15.0], [0.3, 16.0], [0.4, 14.0]], dtype=float)
-        self.impact_matrix = smaa.ImpactMatrix(alternatives, criterions, data)
+        self.impact_matrix = src.ImpactMatrix(alternatives, criterions, data)
 
     def test_get_alternatives_names(self):
         alt_names = self.impact_matrix.get_alternatives_names()

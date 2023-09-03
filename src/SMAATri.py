@@ -1,6 +1,6 @@
 import numpy as np
-from smaa import ImpactMatrixTri, ProfileMatrix
-
+from .ImpactMatrixTri import ImpactMatrixTri
+from .ProfileMatrix import ProfileMatrix
 
 def concordance_index(a, b, q_j, p_j, ascending):
     diff = b - a
@@ -32,7 +32,7 @@ def credibility_index(dj, C):
     diff = 1. - C
     result = C
     for d in dj:
-        if dj > C:
+        if d > C:
             result *= (1-d)/diff
     return result
 
@@ -44,7 +44,7 @@ class SMAATri:
         self.m, self.n = impact_matrix.impact_matrix.shape
         self.b = profile_matrix.data.shape[1]
         self.mc_it: int = mc_it
-        self.results = self.init_results()
+        self.pi = self.init_results()
         self.lambda_value = lambda_value
         self.optimistic = optimistic
 
@@ -88,7 +88,13 @@ class SMAATri:
         return C_ab, C_ba
 
     def outranks(self, dj, C):
-        return credibility_index(dj, C) >= self.lambda_value
+        if(self.lambda_value[0] == self.lambda_value[1]):
+            lambda_value = self.lambda_value[0]
+        else:
+            if(self.lambda_value[0] > self.lambda_value[1]):
+                raise Exception("The lower bound of lambda interval is over the high bound.")
+            lambda_value = self.lambda_value[0] + np.random.uniform(0,1) * (self.lambda_value[1]-self.lambda_value[0])
+        return credibility_index(dj, C) >= lambda_value
 
     def preferred(self, dj, C):
         return self.outranks(dj[0], C[0]) and not self.outranks(dj[1], C[1])
@@ -117,21 +123,26 @@ class SMAATri:
                     break
         return category_mapper
 
+
     def monte_carlo_simulation(self, cj_ab, cj_ba, dj_ab, dj_ba, preference_type, preference_vector):
         h = np.zeros([self.m, self.b+1])
         for i in range(self.mc_it):
             w = preference_type(self.n, preference_vector)
             C_ab, C_ba = self.compute_global_concordance_indexes(cj_ab, cj_ba, w)
-            if self.optimistic:
-                categories = self.optimistic_procedure(C_ab, C_ba, dj_ab, dj_ba)
-            else:
-                categories = self.pessimistic_procedure(C_ab, dj_ab)
+            try:
+                if self.optimistic:
+                    categories = self.optimistic_procedure(C_ab, C_ba, dj_ab, dj_ba)
+                else:
+                    categories = self.pessimistic_procedure(C_ab, dj_ab)
+            except Exception as e:
+                print(f"\033[91mException: {e}\033[00m")
+                return None
             for j in range(self.m):
                 cat = int(categories[j])
                 h[j, cat] += 1
         return h
 
-    def compute_category_acceptability_indices(self, preference_type, preference_vector=None):
+    def compute_pi(self, preference_type, preference_vector=None):
         cj_ab, cj_ba = self.compute_concordance_indexes()
         dj_ab, dj_ba = self.compute_discordance_index()
 
@@ -139,5 +150,6 @@ class SMAATri:
             preference_vector = []
 
         h = self.monte_carlo_simulation(cj_ab, cj_ba, dj_ab, dj_ba, preference_type, preference_vector)
-        return h / self.mc_it
+        if(h is not None):
+            self.pi =  h / self.mc_it
 
