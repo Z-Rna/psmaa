@@ -108,6 +108,7 @@ class SMAA2:
 
     def compute_p(self):
         if self.w_c is None:
+            self.p = None
             return
 
         X_utility = self.partial_utility_matrix()

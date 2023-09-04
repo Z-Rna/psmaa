@@ -1,6 +1,8 @@
 import numpy as np
+
 from .Alternative import Alternative
 from .Criterion import Criterion
+
 
 class ImpactMatrix:
     def __init__(self, alternatives, criterions, data):
@@ -9,7 +11,7 @@ class ImpactMatrix:
         self.impact_matrix = data
 
     def add_alternative(self, values: list, name: str, pos: int = 0):
-        if not pos in range(len(self.alternatives)+1):
+        if not pos in range(len(self.alternatives) + 1):
             raise ValueError(f"Given position: {pos} is out of range: (0,{len(self.alternatives)}).")
         if not len(self.criterions) == len(values):
             raise ValueError(f"Length of given array should be {len(self.criterions)}, rather than {len(values)}.")
@@ -23,8 +25,8 @@ class ImpactMatrix:
         self.alternatives = np.insert(self.alternatives, pos, alternative)
         self.impact_matrix = np.insert(self.impact_matrix, pos, values, axis=0)
 
-    def add_criterion(self, values: list, name, criterion_type, pos: int = 0, ascending: bool = True):
-        if not pos in range(len(self.criterions)+1):
+    def add_criterion(self, values: list, name, criterion_type = "cardinal", pos: int = 0, ascending: bool = True, *args, **kwargs):
+        if not pos in range(len(self.criterions) + 1):
             raise ValueError(f"Given position is out of range: (0,{len(self.criterions)})")
         if not len(self.alternatives) == len(values):
             raise ValueError(f"Length of given array should be {len(self.alternatives)}, rather than {len(values)}.")

@@ -1,12 +1,14 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from .Alternative import Alternative
+from .Category import Category
 from .Criterion import Criterion
 from .CriterionTri import CriterionTri
 from .ImpactMatrix import ImpactMatrix
 from .ImpactMatrixTri import ImpactMatrixTri
-from .ProfileMatrix import ProfileMatrix
 from .Profile import Profile
+from .ProfileMatrix import ProfileMatrix
 
 
 def create_impact_matrix_from_csv(filename_matrix,
@@ -25,6 +27,7 @@ def create_impact_matrix_from_csv(filename_matrix,
     impact_matrix = ImpactMatrix(np.array(alternatives),
                                  np.array(criterions),
                                  raw_data)
+
     return impact_matrix
 
 
@@ -60,6 +63,9 @@ def create_tri_data(filename_matrix,
 
     pro_names = b.columns
     profiles = [Profile(p) for p in pro_names]
+    categories = [Category(pro_names[i].split('-')[0])
+                  if i < len(pro_names) else Category(pro_names[i - 1].split('-')[1])
+                  for i in range(len(pro_names) + 1)]
 
     criterions = [create_tri_criterion(col,
                                        cri_information[col],
@@ -67,20 +73,20 @@ def create_tri_data(filename_matrix,
                                        p[col].values[0],
                                        v[col].values[0]) for col in b.index.values]
 
-    profile_matrix = ProfileMatrix(profiles, criterions, [], raw_data_b)
+    profile_matrix = ProfileMatrix(profiles, criterions, categories, raw_data_b)
 
     return impact_matrix, profile_matrix
 
 
 def create_tri_criterion(name, cri_info, q, p, v):
-    ascending = eval(cri_info["ascending"])
+    ascending = eval(str(cri_info["ascending"]))
     criterion_type = cri_info["criterion_type"]
     cri = CriterionTri(name, q, p, v, ascending, criterion_type)
     return cri
 
 
 def create_criterion(name, cri_info):
-    ascending = bool(cri_info["ascending"])
+    ascending = eval(str(cri_info["ascending"]))
     criterion_type = cri_info["criterion_type"]
     cri = Criterion(name, ascending, criterion_type)
     return cri

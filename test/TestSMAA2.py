@@ -1,5 +1,7 @@
 import unittest
+
 import numpy as np
+
 import src
 
 
@@ -18,14 +20,14 @@ class TestSMAA2(unittest.TestCase):
         self.smaa2 = src.SMAA2(impact_matrix)
 
     def test_partial_utility_matrix(self):
-        partial_utility_matrix = np.array([[1.,0.5], [0., 1.], [0.5, 0.]])
+        partial_utility_matrix = np.array([[1., 0.5], [0., 1.], [0.5, 0.]])
         result = self.smaa2.partial_utility_matrix()
 
         np.testing.assert_allclose(partial_utility_matrix, result)
 
-    def test_compute_w_c_and_b_no_preference(self):
-        w_c = np.array([[0.66709716,0.33290284], [0.16910029, 0.83089971], [0.,0.]])
-        b = np.array([[0.6664,0.3336,0.], [0.3336,0.3334,0.333], [0.,0.333,0.667]])
+    def test_compute_w_c_and_b_no_preference_pass(self):
+        w_c = np.array([[0.66709716, 0.33290284], [0.16910029, 0.83089971], [0., 0.]])
+        b = np.array([[0.6664, 0.3336, 0.], [0.3336, 0.3334, 0.333], [0., 0.333, 0.667]])
 
         self.smaa2.compute_w_c_and_b(src.no_preference)
 
@@ -33,8 +35,8 @@ class TestSMAA2(unittest.TestCase):
         np.testing.assert_allclose(b, self.smaa2.b, atol=0.01)
 
     def test_compute_w_c_and_b_ordinal_preference_pass(self):
-        w_c = np.array([[0.75029038, 0.24970962],[0.,0.], [0.,0.]])
-        b = np.array([[1.,0.,0.], [0.,0.3334,0.6666], [0.,0.6666,0.3334]])
+        w_c = np.array([[0.75029038, 0.24970962], [0., 0.], [0., 0.]])
+        b = np.array([[1., 0., 0.], [0., 0.3334, 0.6666], [0., 0.6666, 0.3334]])
 
         self.smaa2.compute_w_c_and_b(src.ordinal_preference, [1, 2])
 
@@ -51,8 +53,8 @@ class TestSMAA2(unittest.TestCase):
         self.assertEqual(b, self.smaa2.b)
 
     def test_compute_w_c_and_b_cardinal_preference_pass(self):
-        w_c = np.array([[0.6,0.4], [0.,0.], [0.,0.]])
-        b = np.array([[1.,0.,0.], [0.,1.,0.], [0.,0.,1.]])
+        w_c = np.array([[0.6, 0.4], [0., 0.], [0., 0.]])
+        b = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])
 
         self.smaa2.compute_w_c_and_b(src.cardinal_preference, [[0.6], [0.4]])
         np.testing.assert_allclose(w_c, self.smaa2.w_c, atol=0.01)
@@ -90,9 +92,21 @@ class TestSMAA2(unittest.TestCase):
         self.assertEqual(w_c, self.smaa2.w_c)
         self.assertEqual(b, self.smaa2.b)
 
-    def test_compute_p(self):
-        pass
+    def test_compute_p_pass(self):
+        self.smaa2.w_c = np.array([[0.6, 0.4], [0., 0.], [0., 0.]])
+        p = np.array([1., 1., 1.])
 
+        self.smaa2.compute_p()
+
+        np.testing.assert_allclose(p, self.smaa2.p, atol=0.01)
+
+    def test_compute_p_wrong_wc(self):
+        self.smaa2.w_c = None
+        p = None
+
+        self.smaa2.compute_p()
+
+        self.assertEqual(p, self.smaa2.p)
 
 if __name__ == '__main__':
     unittest.main()
