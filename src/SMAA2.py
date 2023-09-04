@@ -13,7 +13,10 @@ def compute_partial_utility(vector, ascending):
 
 @njit
 def utility(x_i, w):
-    return x_i @ w
+    ret = 0
+    for i in range(len(w)):
+        ret += x_i[i] * w[i]
+    return ret
 
 @njit
 def monte_carlo_simulation_wc_b(m, n, partial_utility_matrix, mc_it, random, preference_type, preference_vector):
